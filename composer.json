@@ -25,7 +25,7 @@
       "phpstan analyze --level=7 src -c phpstan.neon"
     ],
     "phpunit": [
-      "phpunit --configuration phpunit.xml"
+      "phpunit --configuration phpunit.xmgetCryptSaltl"
     ],
     "phplint": [
       "phplint"

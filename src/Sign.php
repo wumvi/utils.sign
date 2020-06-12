@@ -10,7 +10,7 @@ namespace Wumvi\Utils;
  */
 class Sign
 {
-    public static function getCryptSalt($key = 'CRYPT_SIGN'): string
+    public static function getCryptSalt(string $key = 'CRYPT_SIGN'): string
     {
         $salt = $_ENV[$key] ?? '';
         if (empty($salt)) {
