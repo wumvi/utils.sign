@@ -1,19 +1,24 @@
+env:
+  global:
+    - CC_TEST_REPORTER_ID=bacb2c53f8557cf51c4189b82bee0f96844bcb231e88c920cfb17cce9e53206d
+    - GIT_COMMITTED_AT=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then git log -1 --pretty=format:%ct; else git log -1 --skip 1 --pretty=format:%ct; fi)
 
 language: php
 php:
   - '7.4'
 
 before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
   - travis_retry composer self-update
   - travis_retry composer install --no-interaction --prefer-source --dev
 
 script:
   - composer test
 
+after_script:
+  - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
+
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-
-addons:
-  code_climate:
-    repo_token:
-      secure: "dJPnA2wXDPJdobmCx1mwdrUfJ2lhTwSax7vfoeVCQEcw4s9ymbDHlN0mz57byANGj+bPil22WyBOt/20xQxnLu6VKjrJWnX2oYpHCGbaSSMWOhhhUspC1az9yUsT2i8pzJzQqFuAvCXyt/GeP2VClEkTnr5SngNBvkMJNkD2U/KD4rkfUO+ZjCjFms5DCGBZex8rTcy2JnOyYHBuLJbUVgNDbtGwGduMNsfPRz4ghJYsXeoeETVUbUcZIopc456kyDFf/hTvfw5XatZrcpJwdyLroKsKN3LyP+dUtqBo/2Y94sowCLkWrDu4BrrUt+uvnTdP/YBm7+AfRgjc4ZTMcKf3r/e8ZS86UiS1bXUogGAvTzk3HZNOoqbf+M4HdjFMvg0C74X8sZue6j7ynlh3BwAGY45ofjdTseLCdp0dT/tgCM0Zi4KHe58f6qRqvK/9aymanxA9WsubJ8vcnpzVfedvUPiEWusyoFDr+6jNha8CmHRDxWQSNr6DkZYewix+CjbW8QJBBBBpNGugWLisup/IlEKWwlNHHF64kJdzl7Ev6vJmEXuKnI+6R9/I7G4ISfW+OswB7azz/sZuQylVK+Tq10dxGXc3IsEuI8ZKAG+g2TXzPWsZGL395Rq/BVTKsPVs/1+wB1KzlM/rpEwvIFmZJZ5mv3MLyOvtRZp6nuQ="
