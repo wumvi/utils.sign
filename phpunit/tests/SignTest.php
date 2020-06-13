@@ -26,8 +26,17 @@ class SignTest extends TestCase
 
     public function testMakeSign(): void
     {
-        $result = Sign::makeSign(self::DATA, self::SALT) === self::SIGN;
-        $this->assertTrue($result, 'make sign');
+        $this->assertEquals(
+            Sign::makeSign(self::DATA, self::SALT),
+            self::SIGN,
+            'make sha256 sign'
+        );
+
+        $this->assertEquals(
+            Sign::makeSign(self::DATA, self::SALT, 'md5'),
+            'cc03e747a6afbbcbf8be7668acfebee5',
+            'make md5 sign'
+        );
     }
 
     public function testMakeSignData(): void

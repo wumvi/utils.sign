@@ -10,6 +10,8 @@ namespace Wumvi\Utils;
  */
 class Sign
 {
+    public const SHA256 = 'sha256';
+
     public static function getCryptSalt(string $key = 'CRYPT_SIGN'): string
     {
         $salt = $_ENV[$key] ?? '';
@@ -20,21 +22,21 @@ class Sign
         return $salt;
     }
 
-    public static function makeSign(string $data, string $salt): string
+    public static function makeSign(string $data, string $salt, string $algo = self::SHA256): string
     {
-        return hash('sha256', $data . $salt, false);
+        return hash($algo, $data . $salt, false);
     }
 
-    public static function makeSignData(string $data, string $salt): string
+    public static function makeSignData(string $data, string $salt, string $algo = self::SHA256): string
     {
-        return self::makeSign($data, $salt) . $data;
+        return self::makeSign($data, $salt, $algo) . $data;
     }
 
-    public static function getSignData(string $rawData, string $salt): string
+    public static function getSignData(string $rawData, string $salt, string $algo = self::SHA256): string
     {
         $sign = substr($rawData, 0, 64) ?: '';
         $data = substr($rawData, 64) ?: '';
 
-        return self::makeSign($data, $salt) === $sign ? $data : '';
+        return self::makeSign($data, $salt, $algo) === $sign ? $data : '';
     }
 }
