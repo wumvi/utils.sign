@@ -1,7 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace Wumvi\Utils;
+namespace Wumvi\Utils\Sign;
+
+use Wumvi\Utils\Sign\Model\SignWithData;
+use \Wumvi\Utils\Sign\Model\Sign as SignModel;
 
 /**
  * Получение переменных и работы с массивами GET или POST
@@ -32,31 +35,36 @@ class Sign
 
     private const DEFAULT_ALGO = self::MD5;
 
-    public static function getRawSign(string $data, string $salt, string $algo = self::DEFAULT_ALGO): string
+    public static function createRawSign(string $data, string $saltValue, string $algo = self::DEFAULT_ALGO): string
     {
-        return hash(self::ALGO_NAME[$algo], $data . $salt, false);
+        if (!array_key_exists($algo, self::ALGO_NAME)) {
+            throw new \InvalidArgumentException('wrong algo name');
+        }
+
+        return hash(self::ALGO_NAME[$algo], $data . $saltValue, false);
     }
 
-    public static function getSign(
+    public static function createSign(
         string $data,
-        string $salt,
         string $saltName,
+        string $saltValue,
         string $algo = self::DEFAULT_ALGO
     ): string {
-        $saltName = substr($saltName, 0, self::SALT_NAME_LEN);
-        return $algo . $saltName . self::getRawSign($data, $salt, $algo);
+        $saltName2Name = substr($saltName, 0, self::SALT_NAME_LEN);
+
+        return $algo . $saltName2Name . self::createRawSign($data, $saltValue, $algo);
     }
 
-    public static function getSignWithData(
+    public static function createSignWithData(
         string $data,
-        string $salt,
         string $saltName,
+        string $saltValue,
         string $algo = self::DEFAULT_ALGO
     ): string {
-        return self::getSign($data, $salt, $saltName, $algo) . $data;
+        return self::createSign($data, $saltName, $saltValue, $algo) . $data;
     }
 
-    public static function decodeSignData(string $rawData): ?SignData
+    public static function decodeSign(string $rawData): ?SignModel
     {
         $algo = substr($rawData, 0, self::ALGO_PREFIX_LEN) ?: '';
         if (!array_key_exists($algo, self::ALGO_NAME)) {
@@ -69,22 +77,44 @@ class Sign
         }
 
         $signStart = self::ALGO_PREFIX_LEN + self::SALT_NAME_LEN;
-        $sign = substr($rawData, $signStart, self::ALGO_LEN[$algo]) ?: '';
-        if (empty($sign)) {
+        $hash = substr($rawData, $signStart, self::ALGO_LEN[$algo]) ?: '';
+        if (empty($hash)) {
             return null;
         }
 
+        return new SignModel($algo, $saltName, $hash);
+    }
+
+    public static function decodeSignWithData(string $rawData): ?SignWithData
+    {
+        $sign = self::decodeSign($rawData);
+        if ($sign === null) {
+            return null;
+        }
+
+        $algo = $sign->getAlgo();
         $dataStart = self::ALGO_PREFIX_LEN + self::SALT_NAME_LEN + self::ALGO_LEN[$algo];
         $data = substr($rawData, $dataStart) ?: '';
         if (empty($data)) {
             return null;
         }
 
-        return new SignData($algo, $sign, $data, $saltName);
+        return new SignWithData($algo, $sign->getSaltName(), $sign->getHash(), $data);
     }
 
-    public static function checkSignData(SignData $data, string $salt): bool
+
+    public static function checkSign(string $signFormRequest, string $data, string $saltValue): bool
     {
-        return self::getRawSign($data->getData(), $salt, $data->getAlgo()) === $data->getKey();
+        $sign = self::decodeSign($signFormRequest);
+        if ($sign === null) {
+            return false;
+        }
+
+        return self::createRawSign($data, $saltValue, $sign->getAlgo()) === $sign->getHash();
+    }
+
+    public static function checkRawSign(string $data, string $algo, string $saltValue, string $hash): bool
+    {
+        return self::createRawSign($data, $saltValue, $algo) === $hash;
     }
 }
