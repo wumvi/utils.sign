@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Wumvi\Utils\Model;
+namespace Wumvi\Sign\Model;
 
 class Sign
 {
