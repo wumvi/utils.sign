@@ -1,7 +1,7 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use Wumvi\Utils\Sign\Sign;
+use Wumvi\Utils\Sign;
 
 class SignTest extends TestCase
 {
