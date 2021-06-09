@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Wumvi\Utils\Sign\Model;
+namespace Wumvi\Utils\Model;
 
 class SignWithData extends Sign
 {

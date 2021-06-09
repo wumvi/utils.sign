@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace Wumvi\Utils\Sign;
+namespace Wumvi\Utils;
 
-use Wumvi\Utils\Sign\Model\SignWithData;
-use \Wumvi\Utils\Sign\Model\Sign as SignModel;
+use Wumvi\Utils\Model\SignWithData;
+use \Wumvi\Utils\Model\Sign as SignModel;
 
 /**
  * Получение переменных и работы с массивами GET или POST
