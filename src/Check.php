@@ -5,12 +5,14 @@ namespace Wumvi\Sign;
 
 class Check
 {
-    public static function checkSign(string $signFormRequest, string $data, string $saltValue): bool
+    public static function checkSign(string $signRaw, string $data, SaltStorage $saltStorage): bool
     {
-        $sign = Decode::decodeSign($signFormRequest);
+        $sign = Decode::decodeSign($signRaw);
         if ($sign === null) {
             return false;
         }
+
+        $saltValue = $saltStorage->getSaltByName($sign->getSaltName());
 
         return Encode::createRawSign($data, $saltValue, $sign->getAlgo()) === $sign->getHash();
     }

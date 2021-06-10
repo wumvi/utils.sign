@@ -10,7 +10,16 @@
     "php": "^8.0"
   },
   "archive": {
-    "exclude": ["phpunit", "phpunit.xml", "ruleset.xml"]
+    "exclude": [
+      "phpunit",
+      "phpunit.xml",
+      "ruleset.xml",
+      ".gitignore",
+      ".travis.yml",
+      "bootstrap.php",
+      "ruleset.xml",
+      "phpstan.neon"
+    ]
   },
   "require-dev": {
     "phpunit/phpunit": "9.5.5",

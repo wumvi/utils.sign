@@ -4,6 +4,7 @@ use PHPUnit\Framework\TestCase;
 use Wumvi\Sign\Encode;
 use Wumvi\Sign\Decode;
 use Wumvi\Sign\Check;
+use Wumvi\Sign\SaltStorage;
 
 class SignTest extends TestCase
 {
@@ -12,6 +13,14 @@ class SignTest extends TestCase
     private const SHA256_OF_DATA = 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae';
     private const MD5_OF_DATA = 'cc03e747a6afbbcbf8be7668acfebee5';
     private const DATA = 'test';
+    private SaltStorage $saltStorage;
+
+    protected function setUp(): void
+    {
+        $this->saltStorage = new SaltStorage([
+            'sn' => '123'
+        ]);
+    }
 
     public function testCreateSign(): void
     {
@@ -72,11 +81,11 @@ class SignTest extends TestCase
         self::assertFalse($result, 'check wrong hash');
 
         $data = Encode::SHA256 . self::SALT_NAME . self::SHA256_OF_DATA;
-        $result = Check::checkSign($data, self::DATA, self::SALT_VALUE);
+        $result = Check::checkSign($data, self::DATA, $this->saltStorage);
         self::assertTrue($result, 'check right hash');
 
         $data = 'wrong-data';
-        $result = Check::checkSign($data, self::DATA, self::SALT_VALUE);
+        $result = Check::checkSign($data, self::DATA, $this->saltStorage);
         self::assertFalse($result, 'check wrong data');
     }
 }
